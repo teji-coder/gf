@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>To my baby</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #6a4c93;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        #timer {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            z-index: 200;
+            color: #fff;
+        }
+
+        #book-screen {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffdce0, #ffeef3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        .book {
+            width: 600px;
+            height: 400px;
+            position: relative;
+            perspective: 2000px;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            background: #fff0f5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: left;
+            transition: transform 1s ease;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            overflow-y: auto;
+            color: #4b296b;
+        }
+
+        .book.open .page:nth-child(1) {
+            transform: rotateY(-180deg);
+            z-index: 1;
+        }
+
+        .book.open .page:nth-child(2) {
+            transform: rotateY(0);
+            z-index: 2;
+        }
+
+        .book.open.page2 .page:nth-child(2) {
+            transform: rotateY(-180deg);
+            z-index: 1;
+        }
+
+        .book.open.page2 .page:nth-child(3) {
+            transform: rotateY(0);
+            z-index: 2;
+        }
+
+        .book.open.page3 .page:nth-child(3) {
+            transform: rotateY(-180deg);
+            z-index: 1;
+        }
+
+        .book.open.page3 .page:nth-child(4) {
+            transform: rotateY(0);
+            z-index: 2;
+        }
+
+        .page:nth-child(1) {
+            z-index: 4;
+            background: #ffd6e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        main {
+            opacity: 0;
+            transition: opacity 1s ease;
+            max-width: 900px;
+            margin: 100px auto 60px;
+            padding: 0 20px;
+        }
+
+        main.show {
+            opacity: 1;
+        }
+
+        .book .page h2 {
+            color: #2d004d !important;
+            text-shadow: 1px 1px 3px #ffeef8;
+        }
+
+        section {
+            padding: 40px 20px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        #memories,
+        #love-coupons {
+            background-color: #7d5ca9;
+        }
+
+        #our-song {
+            background-color: #845ec2;
+        }
+
+        #our-video {
+            background-color: #9b6ad8;
+        }
+
+        #another-books {
+            background-color: #a178df;
+            text-align: center;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fbefff;
+        }
+
+        .gallery,
+        .polaroid-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        /* UPDATED COUPON GALLERY STYLES */
+        .coupon-gallery {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #b494d0 transparent;
+            flex-wrap: nowrap;
+        }
+
+        .coupon-gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .coupon-gallery::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .coupon-gallery::-webkit-scrollbar-thumb {
+            background-color: #b494d0;
+            border-radius: 4px;
+        }
+
+        .photo-frame,
+        .polaroid,
+        .coupon {
+            background: #fff;
+            border: 5px solid #b494d0;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 180px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .coupon {
+            flex: 0 0 auto;
+            width: 200px;
+        }
+
+        .photo-frame:hover,
+        .polaroid:hover,
+        .coupon:hover {
+            transform: scale(1.05) rotateZ(-1deg);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .photo-frame img,
+        .polaroid img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .coupon img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .caption {
+            padding: 6px 10px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #4b296b;
+            background: #f7eaff;
+        }
+
+        .polaroid {
+            transform: rotateZ(var(--angle, 0deg));
+        }
+
+        .song-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        @media (min-width: 700px) {
+            .song-layout {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+
+        .song-lyrics {
+            max-width: 400px;
+            font-style: italic;
+        }
+
+        .surprise-button {
+            background: #ffd6e0;
+            color: #4b296b;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.15rem;
+            border-radius: 40px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #f1d4ff;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="timer"></div>
+
+    <div id="book-screen" onclick="flipPage()">
+        <div class="book" id="book">
+            <div class="page">Click to open :></div>
+            <div class="page">
+                <h2>My Fave Pics of YOUUU!</h2>
+                <div class="gallery">
+                    <div class="photo-frame"><img src="pics,vids,music/photo_2025-03-12_13-02-31.jpg">
+                        <div class="caption">Nung Nag Club hehe</div>
+                    </div>
+                    <div class="photo-frame"><img src="pics,vids,music/photo_2025-08-01_03-30-25.jpg">
+                        <div class="caption">UR BDAY OFC</div>
+                    </div>
+                    <div class="photo-frame"><img src="pics,vids,music/photo_2025-08-01_03-30-26.jpg">
+                        <div class="caption">OUR ROCKWELL DATE</div>
+                    </div>
+                    <div class="photo-frame"><img src="pics,vids,music/photo_2025-08-01_03-30-27.jpg">
+                        <div class="caption">OUR ROCKWELL DATE AGAIN BC UR SO SO SOOO PRETTY</div>
+                    </div>
+                    <div class="photo-frame"><img src="pics,vids,music/photo_2025-08-01_03-30-28.jpg">
+                        <div class="caption">MY BDAY HIHI</div>
+                    </div>
+                </div>
+            </div>
+            <div class="page">
+                <h2>FAVE SONG</h2>
+                <div class="song-layout">
+                    <audio controls id="bg-audio">
+                        <source src="pics,vids,music/Pretty Boy.mp3" type="audio/mpeg">
+                    </audio>
+                    <div class="song-lyrics">
+                        “Even if my heart stops beating, you're the only thing I need.”<br />
+                        “As long as I got you, I'm gonna be alright.”<br />
+                        “You're the music in my heart.”<br />
+                    </div>
+                </div>
+            </div>
+            <div class="page">
+                <h2>🎞️</h2>
+                <video width="100%" height="315" controls>
+                    <source src="pics,vids,music/IMG_7358.MOV" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <div id="open-msg">Click to flip pages!!</div>
+    </div>
+
+    <!-- LETTER SECTION -->
+    <section id="love-letter"
+        style="background-color:#ffeef8;padding:40px 20px;border-radius:20px;margin:60px auto;max-width:900px;">
+        <h2 style="text-align:center;color:#4b296b;">💌</h2>
+        <div
+            style="background:#fff;border-radius:20px;padding:30px;box-shadow:0 10px 25px rgba(0,0,0,0.2);color:#4b296b;line-height:1.7;font-size:1.1rem;">
+            <p>Hi my babyy,</p>
+            <p>
+                I made this because I love youu not just its gfs day todayy. I know i'm not the best gf and marami akong
+                pagkukulang, but i want you to know na
+                I love you so much and I won't let you down again I promise. And I know na hindi ko nak-keep yung
+                promise ko to be a better gf
+                but i'll do my best to be better for you because ikaw lang ang gusto ko makasama in the future and right
+                now, i'm building my future with you na e kaya
+                I'm so lucky to have you in my life
+            </p>
+            <p>
+                Thank you for everything baby, I may not be the best but I can promise you na you're a better gf kasi
+                kahit na you have ur own problems
+                inuuna mo pa rin ako. I'm so thankful for you and I'm really sorry if nakakasakit mga words ko. I'll
+                promise you na hindi na mauulit yun kasi ayokong nasasaktan ka
+                and I'll control my emotions from now on. Thank you baby, thank you for being an understanding gf and
+                thank you for everything :>
+            </p>
+            <p>
+                No matter where life takes us, I'm here baby, always here to support, love, and love you again. You
+                deserve the world! Happy gf's day hehe ps. hindi ako natulog ng 1 and
+                3:42 na ngayon hehe kasi ginawa q 'to no galit pwease
+            </p>
+            <p style="margin-top: 30px;">By,<br><strong>Jany</strong></p>
+        </div>
+    </section>
+
+    <main id="content">
+        <h1>To my baby 💌</h1>
+
+        <section id="love-coupons">
+            <h2>Coupons for my baby</h2>
+            <div class="coupon-gallery">
+                <div class="coupon"><img src="coupon/best_gf-removebg-preview.png">
+                    <div class="caption">BEST GF</div>
+                </div>
+                <div class="coupon"><img src="coupon/unli kiss.png">
+                    <div class="caption">LIFETIME HUGSSSS AND KISSES FOR UU</div>
+                </div>
+                <div class="coupon"><img src="coupon/movie ng.png">
+                    <div class="caption">Movie of ur choice</div>
+                </div>
+                <div class="coupon"><img src="coupon/dinner-removebg-preview.png">
+                    <div class="caption">Any food you crave</div>
+                </div>
+                <div class="coupon"><img src="coupon/date.png">
+                    <div class="caption">Choose where we go on our next date hehe.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="another-books">
+            <h2>US!</h2>
+            <div class="polaroid-wall">
+                <div class="polaroid" style="--angle: -5deg;"><img
+                        src="pics,vids,music/photo_2025-08-01_04-36-04 (2).jpg">
+                    <div class="caption">Fave pic ko hehe</div>
+                </div>
+                <div class="polaroid" style="--angle: 3deg;"><img src="pics,vids,music/photo_2025-08-01_04-36-04.jpg">
+                    <div class="caption">Our motmot</div>
+                </div>
+                <div class="polaroid" style="--angle: -2deg;"><img src="pics,vids,music/photo_2025-08-01_04-36-05.jpg">
+                    <div class="caption">U so pretty here hihi</div>
+                </div>
+                <div class="polaroid" style="--angle: 5deg;"><img src="pics,vids,music/photo_2025-08-01_04-36-07.jpg">
+                    <div class="caption">UR BDAY!!</div>
+                </div>
+                <div class="polaroid" style="--angle: -4deg;"><img
+                        src="pics,vids,music/photo_2025-08-01_04-36-04 (3).jpg">
+                    <div class="caption">UR BDAY AGAIN!!</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <button class="surprise-button" onclick="alert('I love you so much baby!')">Click for a Surprise</button>
+        </section>
+
+        <footer>
+            To my baby made by me hehe
+        </footer>
+    </main>
+
+    <script>
+        let pageIndex = 0;
+        let audioStarted = false;
+
+        function flipPage() {
+            const book = document.getElementById('book');
+            const audio = document.getElementById('bg-audio');
+
+            if (!audioStarted) {
+                audio.play().catch(() => { });
+                audioStarted = true;
+            }
+
+            if (pageIndex === 0) {
+                book.classList.add('open');
+                pageIndex = 1;
+            } else if (pageIndex === 1) {
+                book.classList.add('page2');
+                pageIndex = 2;
+            } else if (pageIndex === 2) {
+                book.classList.add('page3');
+                pageIndex = 3;
+            } else {
+                document.getElementById('book-screen').style.display = 'none';
+                document.getElementById('content').classList.add('show');
+            }
+        }
+
+        function updateTimer() {
+            const startDate = new Date("Feb 11, 2023 00:00:00").getTime();
+            const now = new Date().getTime();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById("timer").innerText =
+                `We've been together for ${days} days, ${hours} hours, and ${minutes} minutes `;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+
+</html>
+
